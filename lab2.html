@@ -1,0 +1,114 @@
+<html>
+<head>
+<meta charset="utf-8">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+
+<style>
+	div.event{
+	background-color: #fcfcfc;
+	border: 1px solid black;
+	}
+	
+	p.title{
+	font-size: 22;
+	font-weight: bold;
+	}
+	
+	p.time{
+	border: 1px solid black;
+	}
+</style>
+
+<script type="text/javascript">
+$( document ).ready(function() {
+
+	var time1 = new Date(2017,1,1).getTime();
+	var time2 = new Date(2018,1,1).getTime();
+	var SomeList;
+	var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": "https://www.eventbriteapi.com/v3/events/search/?q=python&location.address=San+Francosco&start_date.range_start=2017-07-01T00%3A00%3A00Z&start_date.range_end=2018-06-01T00%3A00%3A00Z&token=GLC6HEI6QOCNKDCCQ6FV",
+    "method": "GET",
+    "headers": {}
+  };
+	
+  
+  $.ajax(settings).done(function (SomeList) {
+    console.log(SomeList);
+	console.log(SomeList.events[0].start);
+	
+	for (var i = 0; i < SomeList.events.length; i++)
+	{
+		var newDiv = $("<div class=event num="+i+"></div>");
+		$("#main").append(newDiv);
+		var curEventDiv=newDiv;
+		$(curEventDiv).append($("<p class=title>Name: " + SomeList.events[i].name.text + "</p>"));
+		var cur_date = new Date(SomeList.events[i].start.local);
+		$(curEventDiv).append($("<p class=time>Time: "+cur_date.toString() + "</p>"));
+		$(curEventDiv).append($("<p class=description>Description: "+SomeList.events[i].description.html + "</p>"));
+	}
+	
+	$.ajax({
+	url: "https://api.meetup.com/2/open_events",
+	data: {
+		key: "753c4e712821196b777a753324157274",
+		sign: true,
+		topic: "Python",
+		city: "San Francisco",
+		state: "US",
+		time: time1+","+time2
+	},
+	dataType: "jsonp",
+	
+	    success: function(response,textStatus) {
+			console.log(response);
+			console.log(SomeList);
+			console.log(textStatus);
+			for (var i=0; i<response.results.length; i++){
+				var flag = false;
+				var cur_date = new Date(response.results[i].time);
+				for (var j = 0; j < SomeList.events.length; j++)
+				{
+					var obj_date = new Date(SomeList.events[j].start.local);
+					if ((response.results[i].name == SomeList.events[j].name.text) && (cur_date == obj_date))
+					{
+						flag = true;
+						break;
+					}
+				}
+				
+				if (flag)
+				{
+					console.log("OW HELO");
+					continue;
+				}
+				var newDiv = $("<div class=event num="+i+"></div>");
+				$("#main").append(newDiv);
+				var curEventDiv=newDiv;
+				$(curEventDiv).append($("<p class=title>Name: " + response.results[i].name + "</p>"));
+				
+				$(curEventDiv).append($("<p class=time>Time: "+cur_date.toString() + "</p>"));
+				$(curEventDiv).append($("<p class=description>Description: "+response.results[i].description + "</p>"));
+				
+			}
+	
+    }
+	
+	});
+  });
+	
+	
+	
+	
+	
+});
+</script>
+
+<div id=main>
+</div>
+
+</body>
+</html>
