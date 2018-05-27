@@ -1,0 +1,79 @@
+<html>
+<head>
+<meta charset="utf-8">
+<script src="jquery.min.js"></script>
+</head>
+<body>
+
+<style>
+	div.event{
+	background-color: #cccccc;
+	border: 1px solid black;
+	}
+	
+	p.title{
+	font-size: 22;
+	font-weight: bold;
+	}
+	
+	p.time{
+	border: 1px solid black;
+	}
+</style>
+
+<script type="text/javascript">
+$( document ).ready(function() {
+
+	var time1 = new Date(2016,1,1).getTime();
+	var time2 = new Date(2016,12,1).getTime();
+	//console.log(time1);
+	//console.log(time2);
+	
+	
+	$.ajax({
+	url: "https://api.meetup.com/2/open_events",
+	data: {
+		key: "741b686f5ea761e135315669323224",
+		sign: true,
+		topic: "AWS,SaltStack,Cloud,Docker,Python",
+		city: "San Francisco",
+		state: "US",
+		time: time1+","+time2
+	},
+	dataType: "jsonp",
+	
+	    success: function( response,textStatus) {
+			console.log(response);
+			console.log(textStatus);
+			//console.log(xhr.responseText);
+			//console.log(response.results[0]);
+			for (var i=0; i<response.results.length; i++){
+				var newDiv = "<div class=event num="+i+"></div>";
+				$("#main").append(newDiv);
+				var curEventDiv="div.event[num="+i+"]";
+				
+				$(curEventDiv).append("<p class=title></p>");
+				$(curEventDiv+ " p.title").text("Name: "+response.results[i].name);
+			
+				//$(curEventDiv).append("<p class=city></p>");
+				//$(curEventDiv+ " p.city").text("City: "+response.results[i].name);
+				
+				$(curEventDiv).append("<p class=time></p>");
+				var cur_date = new Date(response.results[i].time);
+				$(curEventDiv+ " p.time").text("Time: "+cur_date.toString());
+				
+				$(curEventDiv).append("<p class=description></p>");
+				$(curEventDiv+ " p.description").append("Description: "+response.results[i].description);
+			}
+    }
+	});
+	
+	
+});
+</script>
+
+<div id=main>
+</div>
+
+</body>
+</html>
